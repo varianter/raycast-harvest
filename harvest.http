@@ -1,9 +1,9 @@
 
 
-@accountId =
-@personalAccessToken = 
+@accountId = {{$dotenv accountId}}
+@personalAccessToken = {{$dotenv personalAccessToken}}
 @baseUrl = https://api.harvestapp.com/api/v2
-@userId = 
+@userId = {{$dotenv userId}}
 
 # Se https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/
 # Få en token här: https://id.getharvest.com/oauth2/access_tokens/new
