@@ -1,0 +1,74 @@
+
+
+@accountId =
+@personalAccessToken = 
+@baseUrl = https://api.harvestapp.com/api/v2
+@userId = 
+
+# Se https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/
+# Få en token här: https://id.getharvest.com/oauth2/access_tokens/new
+
+
+# @name getMe
+GET {{baseUrl}}/users/me.json HTTP/1.1
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+
+GET {{baseUrl}}/users/{{userId}}/project_assignments
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name getTimeEntries
+GET {{baseUrl}}/time_entries HTTP/1.1
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name myProjectAssignments
+GET {{baseUrl}}/users/me/project_assignments 
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name timeReports
+GET {{baseUrl}}/reports/time/clients?from=20230301&to=20230330
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name allTasks
+GET {{baseUrl}}/tasks
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name ferie
+GET {{baseUrl}}/projects/18275198/user_assignments/184289776
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name postTimeEntry
+POST {{baseUrl}}/time_entries HTTP/1.1
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+Content-Type: application/json
+{
+    "user_id":0,
+    "project_id":0,
+    "task_id":10379349,
+    "spent_date":"2023-02-14",
+    "hours": 7.5,
+    "notes": "NOTE"
+}
