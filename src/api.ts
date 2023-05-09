@@ -26,7 +26,6 @@ async function parseFetchResponse(response: Response) {
 }
 
 export function useHarvest() {
-  console.log(preferences);
   const { data, isLoading } = useFetch("https://api.harvestapp.com/api/v2/users/me/project_assignments", {
     onError: (error) => {
       console.debug(error);

@@ -9,11 +9,11 @@
 
 type ExtensionPreferences = {
   /** Personal Access Token - Get your token at https://id.getharvest.com/developers */
-  "token"?: string,
+  "token": string,
   /** Harvest Account Id - You'll find this when you create a new Personal Access Token */
-  "accountId"?: string,
+  "accountId": string,
   /** User-agent - Enable to use unsafe HTTPS for self-signed certificates. */
-  "UA": string
+  "UA"?: string
 }
 
 /** Preferences accessible in all the extension's commands */

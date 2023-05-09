@@ -5,6 +5,7 @@
   "description": "Quickly add hours to Harvest",
   "icon": "command-icon.png",
   "author": "jberglund",
+  "owner": "varianter",
   "categories": [
     "Productivity"
   ],
@@ -12,8 +13,8 @@
   "commands": [
     {
       "name": "harvest-hours",
-      "title": "Submit Harvest Hours",
-      "description": "Pick your favorite",
+      "title": "Submit hours",
+      "description": "Quickly submit hours to Harvest",
       "mode": "view"
     }
   ],
@@ -44,7 +45,7 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.50.0",
+    "@raycast/api": "^1.50.5",
     "@raycast/utils": "^1.5.2",
     "zod": "^3.20.6"
   },
@@ -63,6 +64,6 @@
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
-    "publish": "ray publish"
+    "publish": "npx @raycast/api@latest publish"
   }
 }
