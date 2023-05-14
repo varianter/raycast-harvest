@@ -18,9 +18,8 @@ export default function Command() {
               <ActionPanel>
                 <Action.Push
                   title="Submit Hours"
-                  target={<FormTask projectId={assignement.project.id} taskId={task.task.id} hours="5.5" />}
+                  target={<FormTask projectId={assignement.project.id} taskId={task.task.id} />}
                 />
-                {/* <Action.Push title="Full day" /> */}
               </ActionPanel>
             }
           />

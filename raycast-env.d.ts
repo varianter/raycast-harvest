@@ -22,9 +22,13 @@ declare type Preferences = ExtensionPreferences
 declare namespace Preferences {
   /** Preferences accessible in the `harvest-hours` command */
   export type HarvestHours = ExtensionPreferences & {}
+  /** Preferences accessible in the `harvest-week` command */
+  export type HarvestWeek = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
   /** Arguments passed to the `harvest-hours` command */
   export type HarvestHours = {}
+  /** Arguments passed to the `harvest-week` command */
+  export type HarvestWeek = {}
 }

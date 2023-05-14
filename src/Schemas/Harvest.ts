@@ -48,11 +48,42 @@ export const harvestProjectAssignments = z.object({
   project_assignments: z.array(harvestProjectAssignment),
 });
 
+const project = z.object({
+  id: z.number(),
+  name: z.string(),
+  code: z.string(),
+});
+
+const client = z.object({ id: z.number().positive(), name: z.string() });
+const task = z.object({ id: z.number().positive(), name: z.string() });
+
+// non-exhaustive
 export const harvestTimeEntry = z.object({
+  id: z.number(),
+  client: client,
+  project: project,
+  task: task,
+  spent_date: z.string(),
+  hours: z.number().positive(),
+});
+const stringToNumber = z
+  .string()
+  .regex(/^(?!^[.,])[0-9.,]+$/, { message: "String has invalid format" })
+  .transform((val) => parseFloat(val.replace(",", ".")));
+
+export const harvestPostTimeEntry = z.object({
+  user_id: z.number().positive().optional(),
   project_id: z.number().positive(),
   task_id: z.number().positive(),
-  spent_date: z.coerce.date(),
-  hours: z.number().positive(),
+  spent_date: z.date().transform((d: Date) => d.toISOString().slice(0, 10)),
+  hours: stringToNumber,
+  notes: z.string().optional(),
+});
+export type HarvestPostTimeEntry = z.infer<typeof harvestPostTimeEntry>;
+
+export const harvestTimeEntries = z.object({
+  time_entries: z.array(harvestTimeEntry),
 });
 
 export type HarvestTimeEntry = z.infer<typeof harvestTimeEntry>;
+export type HarvestTimeEntries = z.infer<typeof harvestTimeEntries>;

@@ -30,6 +30,13 @@ Authorization: Bearer {{personalAccessToken}}
 User-Agent: Variant
 
 ###
+# @name getSpecificTimeEntries
+GET {{baseUrl}}/time_entries?from=2023-05-01&to=2023-05-10 HTTP/1.1
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
 # @name myProjectAssignments
 GET {{baseUrl}}/users/me/project_assignments 
 Harvest-Account-ID: {{accountId}}
