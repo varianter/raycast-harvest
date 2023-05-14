@@ -13,13 +13,13 @@
   "commands": [
     {
       "name": "harvest-hours",
-      "title": "Submit hours",
+      "title": "Submit Hours",
       "description": "Quickly submit hours to Harvest",
       "mode": "view"
     },
     {
       "name": "harvest-week",
-      "title": "This week",
+      "title": "This Week",
       "description": "Get a glance of this weeks submitted hours",
       "mode": "view"
     }
