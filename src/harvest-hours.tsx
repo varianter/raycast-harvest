@@ -1,6 +1,6 @@
 import { ActionPanel, Action, List } from "@raycast/api";
 import { useHarvest } from "./api";
-import FormTask from "./Forms/FormTask";
+import SubmitHours from "./Forms/SubmitHours";
 
 export default function Command() {
   const { data, isLoading } = useHarvest();
@@ -18,7 +18,7 @@ export default function Command() {
               <ActionPanel>
                 <Action.Push
                   title="Submit Hours"
-                  target={<FormTask projectId={assignement.project.id} taskId={task.task.id} />}
+                  target={<SubmitHours projectId={assignement.project.id} taskId={task.task.id} />}
                 />
               </ActionPanel>
             }

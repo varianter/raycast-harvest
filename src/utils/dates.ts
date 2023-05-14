@@ -51,9 +51,8 @@ export function getDatesInRange(startISOString: string, endISOString: string): s
 export function diffDateAndNow(date: DateTime) {
   const now = DateTime.now();
   const diff = date.diff(now.startOf("day"), ["days"]).toObject().days;
-  console.log(diff);
   if (diff === 0) {
-    return "| Today";
+    return "Today";
   } else if (diff === -1) {
     return "Yesterday";
   } else {

@@ -24,7 +24,6 @@ function parseFetchResponse<T extends ZodRawShape>(schema: ZodObject<T>) {
         title: "Zod Parse error",
         message: String(result.error),
       });
-      console.log(result.error);
     } else {
       return result.data;
     }

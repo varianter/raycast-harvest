@@ -7,6 +7,7 @@ import { harvestPostTimeEntry } from "../Schemas/Harvest";
 
 type FormValues = {
   hours: string;
+  notes: string;
   spent_date: Date | null;
 };
 
@@ -25,14 +26,22 @@ export default function Command({
       hours: hours,
     },
     async onSubmit(values) {
-      const result = harvestPostTimeEntry.parse({ project_id: projectId, task_id: taskId, ...values });
-      const response = await postHarvestTime(result);
+      try {
+        const result = harvestPostTimeEntry.parse({ project_id: projectId, task_id: taskId, ...values });
+        await postHarvestTime(result);
 
-      showToast({
-        style: Toast.Style.Success,
-        title: "Yay!",
-        message: `Submitted ${values.hours} hours at ${values.spent_date}`,
-      });
+        showToast({
+          style: Toast.Style.Success,
+          title: "Yay!",
+          message: `Submitted ${values.hours} hours at ${values.spent_date}`,
+        });
+      } catch (err) {
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Oh snap!",
+          message: `Something went wrong sending the data to Harvet`,
+        });
+      }
     },
   });
   useEffect(() => {
@@ -61,6 +70,7 @@ export default function Command({
       <Form.Description title="Task ID" text={taskId.toString()} />
       <Form.DatePicker title="Date" type={Form.DatePicker.Type.Date} {...itemProps.spent_date} />
       <Form.TextField title="Hours" {...itemProps.hours} />
+      <Form.TextArea title="Notes" {...itemProps.notes} />
     </Form>
   );
 }
