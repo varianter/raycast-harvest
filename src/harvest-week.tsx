@@ -35,7 +35,7 @@ const currentWeek: Week = {
   weekYear: DateTime.now().weekYear,
 };
 
-export default function Command() {
+export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
   const [weekNumber, setWeekNumber] = useState<Week>(currentWeek);
 
   const handleWeekChange = (week: Week) => {
@@ -52,6 +52,7 @@ export default function Command() {
     <List
       isLoading={isLoading}
       navigationTitle="Search Harvest"
+      selectedItemId={selectedItem}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown weeks={previousWeeks} onWeekChange={handleWeekChange} />}
     >
@@ -62,6 +63,7 @@ export default function Command() {
         return (
           <List.Item
             key={date}
+            id={date}
             title={`${diffDateAndNow(dt)}`}
             subtitle={`${dt.day} ${dt.monthLong}`}
             keywords={dateEntries.map((entry) => entry.client.name)}

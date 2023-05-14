@@ -1,9 +1,10 @@
-import { Action, ActionPanel, Form, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Form, showToast, Toast, useNavigation } from "@raycast/api";
 import { useForm } from "@raycast/utils";
 import { useEffect } from "react";
 import { ZodIssue } from "zod";
 import { postHarvestTime } from "../api";
 import { harvestPostTimeEntry } from "../Schemas/Harvest";
+import HarvestWeek from "../harvest-week";
 
 type FormValues = {
   hours: string;
@@ -20,6 +21,7 @@ export default function Command({
   taskId: number;
   hours?: string;
 }) {
+  const { push } = useNavigation();
   const { handleSubmit, itemProps, setValidationError, values } = useForm<FormValues>({
     initialValues: {
       spent_date: new Date(),
@@ -35,6 +37,7 @@ export default function Command({
           title: "Yay!",
           message: `Submitted ${values.hours} hours at ${values.spent_date}`,
         });
+        push(<HarvestWeek selectedItem={result.spent_date} />);
       } catch (err) {
         showToast({
           style: Toast.Style.Failure,
