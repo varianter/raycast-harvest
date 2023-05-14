@@ -19,6 +19,13 @@
   ],
   "preferences": [
     {
+      "name": "userId",
+      "type": "textfield",
+      "required": true,
+      "title": "Harvest User Id",
+      "description": "You'll find this in the profile-URL on Harvest /people/{userId}"
+    },
+    {
       "name": "token",
       "type": "password",
       "required": true,
@@ -46,6 +53,7 @@
   "dependencies": {
     "@raycast/api": "^1.50.0",
     "@raycast/utils": "^1.5.2",
+    "date-fns": "^2.30.0",
     "zod": "^3.20.6"
   },
   "devDependencies": {

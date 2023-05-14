@@ -24,7 +24,7 @@ User-Agent: Variant
 
 ###
 # @name getTimeEntries
-GET {{baseUrl}}/time_entries HTTP/1.1
+GET {{baseUrl}}/time_entries?from=2023-05-01&user_id={{userId}} HTTP/1.1
 Harvest-Account-ID: {{accountId}}
 Authorization: Bearer {{personalAccessToken}}
 User-Agent: Variant

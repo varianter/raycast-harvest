@@ -8,6 +8,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
+  /** Harvest User Id - You'll find this in the profile-URL on Harvest /people/{userId} */
+  "userId"?: string,
   /** Personal Access Token - Get your token at https://id.getharvest.com/developers */
   "token"?: string,
   /** Harvest Account Id - You'll find this when you create a new Personal Access Token */

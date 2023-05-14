@@ -1,8 +1,10 @@
 import { getPreferenceValues, showToast, Toast } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { harvestProjectAssignments } from "./Schemas/Harvest";
+import { format } from "date-fns";
 
-const preferences: { token: string; accountId: string; UA: string } = getPreferenceValues();
+const baseUrl = "https://api.harvestapp.com/api/v2";
+const preferences: { userId: string; token: string; accountId: string; UA: string } = getPreferenceValues();
 
 const headers = {
   "Harvest-Account-ID": preferences.accountId,
@@ -26,7 +28,6 @@ async function parseFetchResponse(response: Response) {
 }
 
 export function useHarvest() {
-  console.log(preferences);
   const { data, isLoading } = useFetch("https://api.harvestapp.com/api/v2/users/me/project_assignments", {
     onError: (error) => {
       console.debug(error);
@@ -35,6 +36,22 @@ export function useHarvest() {
     headers,
     // keepPreviousData: true,
   });
+
+  return { data, isLoading };
+}
+
+export function useTimeEntries(from: Date, to: Date) {
+  const { data, isLoading } = useFetch(
+    `${baseUrl}/time_entries?from=${format(from, "yyyy-MM-dd")}&to=${format(to, "yyyy-MM-dd")}&user_id={{userId}}`,
+    {
+      onError: (error) => {
+        console.debug(error);
+      },
+      parseResponse: parseFetchResponse,
+      headers,
+      // keepPreviousData: true,
+    }
+  );
 
   return { data, isLoading };
 }
