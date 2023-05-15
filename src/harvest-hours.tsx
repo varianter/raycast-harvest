@@ -2,7 +2,7 @@ import { ActionPanel, Action, List } from "@raycast/api";
 import { useHarvest } from "./api";
 import SubmitHours from "./Forms/SubmitHours";
 
-export default function Command() {
+export default function Command({ initialDate = new Date() }: { initialDate: Date }) {
   const { data, isLoading } = useHarvest();
 
   return (
@@ -18,7 +18,21 @@ export default function Command() {
               <ActionPanel>
                 <Action.Push
                   title="Submit Hours"
-                  target={<SubmitHours projectId={assignement.project.id} taskId={task.task.id} />}
+                  target={
+                    <SubmitHours initialDate={initialDate} projectId={assignement.project.id} taskId={task.task.id} />
+                  }
+                />
+                <Action.Push
+                  title="Full day"
+                  target={
+                    <SubmitHours
+                      initialDate={initialDate}
+                      projectId={assignement.project.id}
+                      taskId={task.task.id}
+                      hours="7.5"
+                      skipToSubmit={true}
+                    />
+                  }
                 />
               </ActionPanel>
             }

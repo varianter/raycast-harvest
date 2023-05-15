@@ -1,4 +1,4 @@
-import { List, Icon, Color } from "@raycast/api";
+import { List, Icon, Color, ActionPanel, Action } from "@raycast/api";
 import { useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
@@ -9,25 +9,7 @@ import {
   getPreviousWeekNumbers,
   Week,
 } from "./utils/dates";
-
-function WeekDropdown(props: { weeks: Week[]; onWeekChange: (newValue: Week) => void }) {
-  const { weeks, onWeekChange } = props;
-  return (
-    <List.Dropdown
-      tooltip="Select week"
-      onChange={(index) => {
-        // because a List.Dropdown.Item value can only ever be a string
-        onWeekChange(weeks[parseInt(index)]);
-      }}
-    >
-      <List.Dropdown.Section title="Weeks">
-        {weeks.map((week, index) => (
-          <List.Dropdown.Item key={week.weekNumber} title={`Week ${week.weekNumber}`} value={index.toString()} />
-        ))}
-      </List.Dropdown.Section>
-    </List.Dropdown>
-  );
-}
+import HarvestHours from "./harvest-hours";
 
 const previousWeeks = getPreviousWeekNumbers(new Date());
 const currentWeek: Week = {
@@ -36,16 +18,15 @@ const currentWeek: Week = {
 };
 
 export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
-  const [weekNumber, setWeekNumber] = useState<Week>(currentWeek);
+  const [week, setWeekNumber] = useState<Week>(currentWeek);
 
   const handleWeekChange = (week: Week) => {
     setWeekNumber(week);
   };
 
-  const { start, end } = getDateRangeByWeekNumberAndYear(weekNumber.weekNumber, weekNumber.weekYear);
-  const weekDates = getDatesInRange(start, end);
-
+  const { start, end } = getDateRangeByWeekNumberAndYear(week.weekNumber, week.weekYear);
   const { data, isLoading } = useHarvestWeek(start, end);
+  const weekDates = getDatesInRange(start, end);
   const entries = data?.time_entries || [];
 
   return (
@@ -59,7 +40,7 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
       {weekDates.map((date) => {
         const dt = DateTime.fromISO(date);
         const dateEntries = entries.filter(({ spent_date }) => spent_date === date);
-
+        const sumHours = dateEntries.reduce((a, b) => b.hours + a, 0);
         return (
           <List.Item
             key={date}
@@ -67,7 +48,12 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
             title={`${diffDateAndNow(dt)}`}
             subtitle={`${dt.day} ${dt.monthLong}`}
             keywords={dateEntries.map((entry) => entry.client.name)}
-            accessories={[{ tag: dateEntries.length.toString() }]}
+            accessories={[{ tag: `${sumHours}h` }]}
+            actions={
+              <ActionPanel>
+                <Action.Push title="Submit Hours" target={<HarvestHours initialDate={new Date(date)} />} />
+              </ActionPanel>
+            }
             detail={
               <List.Item.Detail
                 metadata={
@@ -100,5 +86,24 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
         );
       })}
     </List>
+  );
+}
+
+function WeekDropdown(props: { weeks: Week[]; onWeekChange: (newValue: Week) => void }) {
+  const { weeks, onWeekChange } = props;
+  return (
+    <List.Dropdown
+      tooltip="Select week"
+      onChange={(index) => {
+        // because a List.Dropdown.Item value can only ever be a string
+        onWeekChange(weeks[parseInt(index)]);
+      }}
+    >
+      <List.Dropdown.Section title="Weeks">
+        {weeks.map((week, index) => (
+          <List.Dropdown.Item key={week.weekNumber} title={`Week ${week.weekNumber}`} value={index.toString()} />
+        ))}
+      </List.Dropdown.Section>
+    </List.Dropdown>
   );
 }

@@ -16,15 +16,19 @@ export default function Command({
   projectId,
   taskId,
   hours = "7.5",
+  initialDate = new Date(),
+  skipToSubmit = false,
 }: {
   projectId: number;
   taskId: number;
   hours?: string;
+  initialDate?: Date;
+  skipToSubmit?: boolean;
 }) {
   const { push } = useNavigation();
   const { handleSubmit, itemProps, setValidationError, values } = useForm<FormValues>({
     initialValues: {
-      spent_date: new Date(),
+      spent_date: initialDate,
       hours: hours,
     },
     async onSubmit(values) {
@@ -60,6 +64,12 @@ export default function Command({
       }
     }
   }, [values]);
+
+  useEffect(() => {
+    if (skipToSubmit) {
+      handleSubmit(values);
+    }
+  }, []);
 
   return (
     <Form

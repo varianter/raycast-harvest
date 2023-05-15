@@ -38,16 +38,23 @@
       "required": true,
       "title": "Harvest Account Id",
       "description": "You'll find this when you create a new Personal Access Token",
-      "placeholder": "123456"
+      "placeholder": "000000"
+    },
+    {
+      "name": "userId",
+      "type": "textfield",
+      "required": true,
+      "default": "000000",
+      "title": "Your user ID",
+      "description": "Needed to only get your own timey stuff"
     },
     {
       "name": "UA",
       "type": "textfield",
       "required": false,
-      "default": "Variant",
+      "default": "Raycast Harvest Extension",
       "title": "User-agent",
-      "description": "Enable to use unsafe HTTPS for self-signed certificates.",
-      "label": "Variant"
+      "description": "Harvest API wants this, so yes, give em a custom User-Agent"
     }
   ],
   "dependencies": {
