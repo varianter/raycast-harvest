@@ -11,7 +11,7 @@ const taskAssignmentSchema = z.object({
   is_active: z.boolean(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-  hourly_rate: z.null(),
+  hourly_rate: z.number().nullable(),
   budget: z.null(),
   task: harvestTaskSchema,
 });
