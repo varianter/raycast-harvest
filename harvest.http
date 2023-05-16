@@ -10,7 +10,7 @@
 
 
 # @name getMe
-GET {{baseUrl}}/users/me.json HTTP/1.1
+GET {{baseUrl}}/users/me HTTP/1.1
 Harvest-Account-ID: {{accountId}}
 Authorization: Bearer {{personalAccessToken}}
 User-Agent: Variant
@@ -25,6 +25,13 @@ User-Agent: Variant
 ###
 # @name getTimeEntries
 GET {{baseUrl}}/time_entries HTTP/1.1
+Harvest-Account-ID: {{accountId}}
+Authorization: Bearer {{personalAccessToken}}
+User-Agent: Variant
+
+###
+# @name getSpecificTimeEntries
+GET {{baseUrl}}/time_entries?from=2023-05-01&to=2023-05-10 HTTP/1.1
 Harvest-Account-ID: {{accountId}}
 Authorization: Bearer {{personalAccessToken}}
 User-Agent: Variant

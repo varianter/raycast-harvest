@@ -1,12 +1,12 @@
 import { ActionPanel, Action, List } from "@raycast/api";
 import { useHarvest } from "./api";
-import ExampleForm from "./Examples/FormTask";
+import SubmitHours from "./Forms/SubmitHours";
 
-export default function Command() {
+export default function Command({ initialDate = new Date() }: { initialDate: Date }) {
   const { data, isLoading } = useHarvest();
 
   return (
-    <List isLoading={isLoading} navigationTitle="Søk projekt" searchBarPlaceholder="Søk etter projekt...">
+    <List isLoading={isLoading} navigationTitle="Search Harvest" searchBarPlaceholder="Search for assignments">
       {data?.project_assignments.map((assignement) =>
         assignement.task_assignments.map((task) => (
           <List.Item
@@ -18,9 +18,22 @@ export default function Command() {
               <ActionPanel>
                 <Action.Push
                   title="Submit Hours"
-                  target={<ExampleForm projectId={assignement.project.id} taskId={task.task.id} />}
+                  target={
+                    <SubmitHours initialDate={initialDate} projectId={assignement.project.id} taskId={task.task.id} />
+                  }
                 />
-                <Action.CopyToClipboard content="👋" />
+                <Action.Push
+                  title="Full day"
+                  target={
+                    <SubmitHours
+                      initialDate={initialDate}
+                      projectId={assignement.project.id}
+                      taskId={task.task.id}
+                      hours="7.5"
+                      skipToSubmit={true}
+                    />
+                  }
+                />
               </ActionPanel>
             }
           />

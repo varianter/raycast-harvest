@@ -3,8 +3,9 @@
   "name": "harvest",
   "title": "Harvest",
   "description": "Quickly add hours to Harvest",
-  "icon": "command-icon.png",
+  "icon": "harvest.png",
   "author": "jberglund",
+  "owner": "variant-as",
   "categories": [
     "Productivity"
   ],
@@ -12,8 +13,14 @@
   "commands": [
     {
       "name": "harvest-hours",
-      "title": "Submit Harvest Hours",
-      "description": "Pick your favorite",
+      "title": "Submit Hours",
+      "description": "Quickly submit hours to Harvest",
+      "mode": "view"
+    },
+    {
+      "name": "harvest-week",
+      "title": "This Week",
+      "description": "Get a glance of this weeks submitted hours",
       "mode": "view"
     }
   ],
@@ -31,38 +38,52 @@
       "required": true,
       "title": "Harvest Account Id",
       "description": "You'll find this when you create a new Personal Access Token",
-      "placeholder": "123456"
+      "placeholder": "000000"
+    },
+    {
+      "name": "userId",
+      "type": "textfield",
+      "required": true,
+      "default": "000000",
+      "title": "Your user ID",
+      "description": "Needed to only get your own timey stuff"
     },
     {
       "name": "UA",
       "type": "textfield",
       "required": false,
-      "default": "Variant",
+      "default": "Raycast Harvest Extension",
       "title": "User-agent",
-      "description": "Enable to use unsafe HTTPS for self-signed certificates.",
-      "label": "Variant"
+      "description": "Harvest API wants this, so yes, give em a custom User-Agent"
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.50.0",
+    "@raycast/api": "^1.50.5",
     "@raycast/utils": "^1.5.2",
+    "got": "^12.6.0",
+    "luxon": "^3.3.0",
     "zod": "^3.20.6"
   },
   "devDependencies": {
+    "@types/luxon": "^3.3.0",
     "@types/node": "18.8.3",
     "@types/react": "18.0.9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vitest/ui": "^0.31.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "prettier": "^2.5.1",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "vitest": "^0.31.0"
   },
   "scripts": {
     "build": "ray build -e dist",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
-    "publish": "ray publish"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "publish": "npx @raycast/api@latest publish"
   }
 }
