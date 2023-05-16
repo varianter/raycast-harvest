@@ -55,7 +55,7 @@ export function useHarvestWeek(from: string, to: string) {
 }
 
 export async function postHarvestTime(obj: HarvestPostTimeEntry) {
-  const { body } = await got.post(`${BASE_URL}/time_entries?user_id=${preferences.userId}`, {
+  const { body } = await got.post(`${BASE_URL}/time_entries`, {
     headers,
     json: obj,
     responseType: "json",
