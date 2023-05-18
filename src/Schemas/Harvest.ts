@@ -43,6 +43,7 @@ const harvestProjectAssignment = z.object({
   client: harvestClientSchema,
   task_assignments: z.array(taskAssignmentSchema),
 });
+export type HarvestProjectAssignment = z.infer<typeof harvestProjectAssignment>;
 
 export const harvestProjectAssignments = z.object({
   project_assignments: z.array(harvestProjectAssignment),
