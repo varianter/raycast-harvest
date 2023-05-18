@@ -45,11 +45,11 @@ export default function Command({ initialDate = new Date() }: { initialDate: Dat
                     />
                   }
                 />
-                <Action.SubmitForm
+                <Action
                   title="Remove from Favorites"
                   icon={Icon.Heart}
                   shortcut={{ modifiers: ["opt"], key: "space" }}
-                  onSubmit={() => {
+                  onAction={() => {
                     // remove from favorites
                     const newFavorites = favorites.filter((f) => f.id !== favorite.id);
                     setFavorites(newFavorites);
