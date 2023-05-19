@@ -3,6 +3,7 @@ import { useFetch } from "@raycast/utils";
 import { ZodObject, ZodRawShape } from "zod";
 import { HarvestPostTimeEntry, harvestProjectAssignments, harvestTimeEntries } from "./Schemas/Harvest";
 import got from "got";
+
 const preferences: { token: string; accountId: string; UA: string; userId: string } = getPreferenceValues();
 
 const BASE_URL = "https://api.harvestapp.com/api/v2";
@@ -62,4 +63,17 @@ export async function postHarvestTime(obj: HarvestPostTimeEntry) {
   });
   // Vallidate API response?
   return body;
+}
+
+export async function deleteHarvestTime(timeEntryId: number) {
+  try {
+    const { ok } = await got.delete(`${BASE_URL}/time_entries/${timeEntryId}`, {
+      headers,
+      responseType: "json",
+    });
+
+    return ok;
+  } catch (error) {
+    return false;
+  }
 }

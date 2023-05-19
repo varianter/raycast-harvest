@@ -5,6 +5,7 @@ import { ZodIssue } from "zod";
 import { postHarvestTime } from "../api";
 import { harvestPostTimeEntry } from "../Schemas/Harvest";
 import HarvestWeek from "../harvest-week";
+import { formatShortDate } from "../utils/dates";
 
 type FormValues = {
   hours: string;
@@ -35,11 +36,10 @@ export default function Command({
       try {
         const result = harvestPostTimeEntry.parse({ project_id: projectId, task_id: taskId, ...values });
         await postHarvestTime(result);
-
         showToast({
           style: Toast.Style.Success,
           title: "Yay!",
-          message: `Submitted ${values.hours} hours at ${values.spent_date}`,
+          message: `Submitted ${values.hours} hours on ${formatShortDate(values.spent_date)}`,
         });
         push(<HarvestWeek selectedItem={result.spent_date} />);
       } catch (err) {
@@ -51,6 +51,7 @@ export default function Command({
       }
     },
   });
+
   useEffect(() => {
     const result = harvestPostTimeEntry.safeParse({ project_id: projectId, task_id: taskId, ...values });
     if (!result.success) {

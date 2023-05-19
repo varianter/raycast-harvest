@@ -59,3 +59,15 @@ export function diffDateAndNow(date: DateTime) {
     return date.weekdayLong;
   }
 }
+
+export function formatShortDate(date: Date | null) {
+  if (date === null) return "";
+
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  };
+
+  return date.toLocaleDateString("nb-NO", dateOptions);
+}
