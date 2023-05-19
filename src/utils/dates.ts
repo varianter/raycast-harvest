@@ -21,10 +21,9 @@ export function getDateRangeByWeekNumberAndYear(weekNumber: number, weekYear: nu
 }
 export type Week = { weekNumber: number; weekYear: number };
 
-export function getPreviousWeekNumbers(date: Date, numberOfWeeks = 5): Week[] {
-  const d = DateTime.fromJSDate(date);
+export function getPreviousWeekNumbers(dateTime: DateTime, numberOfWeeks = 5): Week[] {
   return createArray(numberOfWeeks).map((_, index) => {
-    const previousWeek = d.minus({ weeks: index });
+    const previousWeek = dateTime.minus({ weeks: index });
     return { weekNumber: previousWeek.weekNumber, weekYear: previousWeek.weekYear };
   });
 }
@@ -36,15 +35,16 @@ export function getDatesInRange(startISOString: string, endISOString: string): s
   const dates = [];
 
   for (let date = start; date <= end; date = date.plus({ days: 1 })) {
-    const boop = date.isValid;
-    date.day;
-    if (boop) {
+    const { isValid } = date;
+
+    if (isValid) {
       const ISOString = date.toISODate();
       if (ISOString) {
         dates.push(ISOString);
       }
     }
   }
+
   return dates;
 }
 
@@ -56,7 +56,7 @@ export function diffDateAndNow(date: DateTime) {
   } else if (diff === -1) {
     return "Yesterday";
   } else {
-    return date.weekdayLong;
+    return date.weekdayLong ?? "";
   }
 }
 

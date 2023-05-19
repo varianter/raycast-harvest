@@ -12,13 +12,13 @@ import {
 import HarvestHours from "./harvest-hours";
 import { HarvestTimeEntry } from "./Schemas/Harvest";
 
-const previousWeeks = getPreviousWeekNumbers(new Date());
-const currentWeek: Week = {
-  weekNumber: DateTime.now().weekNumber,
-  weekYear: DateTime.now().weekYear,
-};
-
 export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
+  const today = DateTime.now();
+  const currentWeek: Week = {
+    weekNumber: today.weekNumber,
+    weekYear: today.weekYear,
+  };
+
   const [week, setWeekNumber] = useState<Week>(currentWeek);
 
   const { start, end } = getDateRangeByWeekNumberAndYear(week.weekNumber, week.weekYear);
@@ -40,7 +40,7 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
       navigationTitle="Search Harvest"
       selectedItemId={selectedItem}
       isShowingDetail={true}
-      searchBarAccessory={<WeekDropdown weeks={previousWeeks} onWeekChange={setWeekNumber} />}
+      searchBarAccessory={<WeekDropdown dateTime={today} onWeekChange={setWeekNumber} />}
     >
       {weekDates.map((date) => {
         const dt = DateTime.fromISO(date);
@@ -51,7 +51,7 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
           <List.Item
             key={date}
             id={date}
-            title={`${diffDateAndNow(dt)}`}
+            title={diffDateAndNow(dt)}
             subtitle={`${dt.day} ${dt.monthLong}`}
             keywords={dateEntries.map((entry) => entry.client.name)}
             accessories={[{ tag: `${sumHours}h` }]}
@@ -104,8 +104,9 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
   );
 }
 
-function WeekDropdown(props: { weeks: Week[]; onWeekChange: (newValue: Week) => void }) {
-  const { weeks, onWeekChange } = props;
+function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekChange: (newValue: Week) => void }) {
+  const weeks = getPreviousWeekNumbers(dateTime);
+
   return (
     <List.Dropdown
       tooltip="Select week"
