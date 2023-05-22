@@ -20,7 +20,7 @@
     {
       "name": "harvest-week",
       "title": "This Week",
-      "description": "Get a glance of this weeks submitted hours",
+      "description": "Get a glance of this week's submitted hours",
       "mode": "view"
     }
   ],

@@ -1,7 +1,7 @@
-import { List, Icon, Color, ActionPanel, Action } from "@raycast/api";
-import { useHarvestWeek } from "./api";
+import { List, Icon, Color, ActionPanel, Action, showToast, Toast } from "@raycast/api";
+import { deleteHarvestTime, useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
-import React, { useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import {
   diffDateAndNow,
   getDateRangeByWeekNumberAndYear,
@@ -10,24 +10,29 @@ import {
   Week,
 } from "./utils/dates";
 import HarvestHours from "./harvest-hours";
-
-const previousWeeks = getPreviousWeekNumbers(new Date());
-const currentWeek: Week = {
-  weekNumber: DateTime.now().weekNumber,
-  weekYear: DateTime.now().weekYear,
-};
+import { HarvestTimeEntry } from "./Schemas/Harvest";
 
 export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
-  const [week, setWeekNumber] = useState<Week>(currentWeek);
-
-  const handleWeekChange = (week: Week) => {
-    setWeekNumber(week);
+  const today = DateTime.now();
+  const currentWeek: Week = {
+    weekNumber: today.weekNumber,
+    weekYear: today.weekYear,
   };
 
+  const [week, setWeekNumber] = useState<Week>(currentWeek);
+
   const { start, end } = getDateRangeByWeekNumberAndYear(week.weekNumber, week.weekYear);
-  const { data, isLoading } = useHarvestWeek(start, end);
   const weekDates = getDatesInRange(start, end);
-  const entries = data?.time_entries || [];
+
+  const { data, isLoading } = useHarvestWeek(start, end);
+  const [entries, setEntries] = useState<HarvestTimeEntry[]>(data?.time_entries ?? []);
+
+  // Update entries when the data is updated by e.g. adding a new time entry.
+  useEffect(() => {
+    if (data) {
+      setEntries(data.time_entries);
+    }
+  }, [data]);
 
   return (
     <List
@@ -35,23 +40,33 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
       navigationTitle="Search Harvest"
       selectedItemId={selectedItem}
       isShowingDetail={true}
-      searchBarAccessory={<WeekDropdown weeks={previousWeeks} onWeekChange={handleWeekChange} />}
+      searchBarAccessory={<WeekDropdown dateTime={today} onWeekChange={setWeekNumber} />}
     >
       {weekDates.map((date) => {
         const dt = DateTime.fromISO(date);
         const dateEntries = entries.filter(({ spent_date }) => spent_date === date);
         const sumHours = dateEntries.reduce((a, b) => b.hours + a, 0);
+
         return (
           <List.Item
             key={date}
             id={date}
-            title={`${diffDateAndNow(dt)}`}
+            title={diffDateAndNow(dt)}
             subtitle={`${dt.day} ${dt.monthLong}`}
             keywords={dateEntries.map((entry) => entry.client.name)}
             accessories={[{ tag: `${sumHours}h` }]}
             actions={
               <ActionPanel>
                 <Action.Push title="Submit Hours" target={<HarvestHours initialDate={new Date(date)} />} />
+                <ActionPanel.Submenu title="Delete Entry" icon={Icon.Trash} shortcut={{ modifiers: ["cmd"], key: "d" }}>
+                  {dateEntries.map((dateEntry) => (
+                    <Action
+                      key={dateEntry.id}
+                      title={dateEntry.task.name}
+                      onAction={async () => await handleOnDelete(dateEntry, entries, setEntries)}
+                    />
+                  ))}
+                </ActionPanel.Submenu>
               </ActionPanel>
             }
             detail={
@@ -89,8 +104,9 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
   );
 }
 
-function WeekDropdown(props: { weeks: Week[]; onWeekChange: (newValue: Week) => void }) {
-  const { weeks, onWeekChange } = props;
+function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekChange: (newValue: Week) => void }) {
+  const weeks = getPreviousWeekNumbers(dateTime);
+
   return (
     <List.Dropdown
       tooltip="Select week"
@@ -106,4 +122,37 @@ function WeekDropdown(props: { weeks: Week[]; onWeekChange: (newValue: Week) => 
       </List.Dropdown.Section>
     </List.Dropdown>
   );
+}
+
+/**
+ * Handles the deletion of a time entry.
+ * @param dateEntry Date entry to delete
+ * @param entries List of time entries
+ * @param setEntries Function to set the list of entries
+ */
+async function handleOnDelete(
+  dateEntry: HarvestTimeEntry,
+  entries: HarvestTimeEntry[],
+  setEntries: React.Dispatch<SetStateAction<HarvestTimeEntry[]>>
+) {
+  // Show loading toast
+  showToast({ title: "Deleting", style: Toast.Style.Animated });
+
+  const ok = await deleteHarvestTime(dateEntry.id);
+
+  if (ok) {
+    // Remove the deleted entry from the list of entries
+    setEntries(entries.filter((entry) => entry.id !== dateEntry.id));
+    showToast({
+      title: "Success",
+      message: `Deleted ${dateEntry.task.name}`,
+      style: Toast.Style.Success,
+    });
+  } else {
+    showToast({
+      title: "Error",
+      message: `Could not find ${dateEntry.task.name}`,
+      style: Toast.Style.Failure,
+    });
+  }
 }
