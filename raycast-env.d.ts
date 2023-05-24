@@ -12,8 +12,6 @@ type ExtensionPreferences = {
   "token": string,
   /** Harvest Account Id - You'll find this when you create a new Personal Access Token */
   "accountId": string,
-  /** Your user ID - Needed to only get your own timey stuff */
-  "userId": string,
   /** User-agent - Harvest API wants this, so yes, give em a custom User-Agent */
   "UA"?: string
 }

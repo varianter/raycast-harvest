@@ -88,3 +88,7 @@ export const harvestTimeEntries = z.object({
 
 export type HarvestTimeEntry = z.infer<typeof harvestTimeEntry>;
 export type HarvestTimeEntries = z.infer<typeof harvestTimeEntries>;
+
+export const userId = z.object({
+  id: z.number(),
+});

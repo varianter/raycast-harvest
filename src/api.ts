@@ -1,10 +1,10 @@
 import { getPreferenceValues, showToast, Toast } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { ZodObject, ZodRawShape } from "zod";
-import { HarvestPostTimeEntry, harvestProjectAssignments, harvestTimeEntries } from "./Schemas/Harvest";
+import { HarvestPostTimeEntry, harvestProjectAssignments, harvestTimeEntries, userId } from "./Schemas/Harvest";
 import got from "got";
 
-const preferences: { token: string; accountId: string; UA: string; userId: string } = getPreferenceValues();
+const preferences: { token: string; accountId: string; UA: string } = getPreferenceValues();
 
 const BASE_URL = "https://api.harvestapp.com/api/v2";
 
@@ -44,7 +44,8 @@ export function useHarvest() {
 }
 
 export function useHarvestWeek(from: string, to: string) {
-  const { data, isLoading } = useFetch(`${BASE_URL}/time_entries?user_id=${preferences.userId}&from=${from}&to=${to}`, {
+  const userId = useUserId();
+  const { data, isLoading } = useFetch(`${BASE_URL}/time_entries?user_id=${userId}&from=${from}&to=${to}`, {
     onError: (error) => {
       console.debug(error);
     },
@@ -53,6 +54,19 @@ export function useHarvestWeek(from: string, to: string) {
   });
 
   return { data, isLoading };
+}
+
+function useUserId() {
+  const { data } = useFetch(`${BASE_URL}/users/me`, {
+    onError: (error) => {
+      console.debug(error);
+    },
+    parseResponse: parseFetchResponse(userId),
+    headers,
+    keepPreviousData: true,
+  });
+
+  return data?.id;
 }
 
 export async function postHarvestTime(obj: HarvestPostTimeEntry) {

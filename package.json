@@ -41,14 +41,6 @@
       "placeholder": "000000"
     },
     {
-      "name": "userId",
-      "type": "textfield",
-      "required": true,
-      "default": "000000",
-      "title": "Your user ID",
-      "description": "Needed to only get your own timey stuff"
-    },
-    {
       "name": "UA",
       "type": "textfield",
       "required": false,
