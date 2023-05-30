@@ -11,6 +11,8 @@ import {
 } from "./utils/dates";
 import HarvestHours from "./harvest-hours";
 import { HarvestTimeEntry } from "./Schemas/Harvest";
+import { useDefaultTask } from "./utils/defaultTask";
+import SubmitHours from "./Forms/SubmitHours";
 
 export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
   const today = DateTime.now();
@@ -26,6 +28,7 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
 
   const { data, isLoading } = useHarvestWeek(start, end);
   const [entries, setEntries] = useState<HarvestTimeEntry[]>(data?.time_entries ?? []);
+  const { defaultTask } = useDefaultTask();
 
   // Update entries when the data is updated by e.g. adding a new time entry.
   useEffect(() => {
@@ -38,7 +41,7 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
     <List
       isLoading={isLoading}
       navigationTitle="Search Harvest"
-      selectedItemId={selectedItem}
+      selectedItemId={selectedItem ?? today.toISODate() ?? ""}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown dateTime={today} onWeekChange={setWeekNumber} />}
     >
@@ -58,6 +61,20 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
             actions={
               <ActionPanel>
                 <Action.Push title="Submit Hours" target={<HarvestHours initialDate={new Date(date)} />} />
+                {defaultTask && (
+                  <Action.Push
+                    title="Submit to Default Task"
+                    target={
+                      <SubmitHours
+                        initialDate={new Date(date)}
+                        projectId={defaultTask.project.id}
+                        taskId={defaultTask.task.id}
+                        hours="7.5"
+                        skipToSubmit={true}
+                      />
+                    }
+                  />
+                )}
                 <ActionPanel.Submenu title="Delete Entry" icon={Icon.Trash} shortcut={{ modifiers: ["cmd"], key: "d" }}>
                   {dateEntries.map((dateEntry) => (
                     <Action
