@@ -28,6 +28,11 @@ export function getPreviousWeekNumbers(dateTime: DateTime, numberOfWeeks = 5): W
   });
 }
 
+export function getNextWeekNumber(dateTime: DateTime): Week {
+  const nextWeek = dateTime.plus({ weeks: 1 });
+  return { weekNumber: nextWeek.weekNumber, weekYear: nextWeek.weekYear };
+}
+
 export function getDatesInRange(startISOString: string, endISOString: string): string[] {
   const start = DateTime.fromISO(startISOString);
   const end = DateTime.fromISO(endISOString);
