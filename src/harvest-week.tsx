@@ -6,6 +6,7 @@ import {
   diffDateAndNow,
   getDateRangeByWeekNumberAndYear,
   getDatesInRange,
+  getNextWeekNumber,
   getPreviousWeekNumbers,
   Week,
 } from "./utils/dates";
@@ -122,7 +123,7 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
 }
 
 function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekChange: (newValue: Week) => void }) {
-  const weeks = getPreviousWeekNumbers(dateTime);
+  const weeks = [getNextWeekNumber(dateTime), ...getPreviousWeekNumbers(dateTime)];
 
   return (
     <List.Dropdown
@@ -131,10 +132,16 @@ function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekCh
         // because a List.Dropdown.Item value can only ever be a string
         onWeekChange(weeks[parseInt(index)]);
       }}
+      // Default to the current week
+      defaultValue="1"
     >
       <List.Dropdown.Section title="Weeks">
         {weeks.map((week, index) => (
-          <List.Dropdown.Item key={week.weekNumber} title={`Week ${week.weekNumber}`} value={index.toString()} />
+          <List.Dropdown.Item
+            key={week.weekNumber}
+            title={`Week ${week.weekNumber}${week.weekNumber === dateTime.weekNumber ? " (current)" : ""}`}
+            value={index.toString()}
+          />
         ))}
       </List.Dropdown.Section>
     </List.Dropdown>
