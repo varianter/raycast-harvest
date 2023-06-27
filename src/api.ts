@@ -45,7 +45,7 @@ export function useHarvest() {
 
 export function useHarvestWeek(from: string, to: string) {
   const userId = useUserId();
-  const { data, isLoading } = useFetch(`${BASE_URL}/time_entries?user_id=${userId}&from=${from}&to=${to}`, {
+  const { data, isLoading, revalidate } = useFetch(`${BASE_URL}/time_entries?user_id=${userId}&from=${from}&to=${to}`, {
     onError: (error) => {
       console.debug(error);
     },
@@ -53,7 +53,7 @@ export function useHarvestWeek(from: string, to: string) {
     headers,
   });
 
-  return { data, isLoading };
+  return { data, isLoading, revalidate };
 }
 
 function useUserId() {
