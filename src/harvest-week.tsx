@@ -1,5 +1,5 @@
 import { List, Icon, Color, ActionPanel, Action, showToast, Toast } from "@raycast/api";
-import { deleteHarvestTime, postHarvestTime, useHarvestWeek } from "./api";
+import { deleteHarvestTime, postHarvestTime, useHarvestTotal, useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
 import {
@@ -14,6 +14,7 @@ import {
 import HarvestHours, { Favorite } from "./harvest-hours";
 import { harvestPostTimeEntry, HarvestTimeEntry } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
+import { getMonthlyTotal } from "./utils/workdays";
 
 export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
   const today = DateTime.now();
@@ -27,13 +28,20 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
   const { start, end } = getDateRangeByWeekNumberAndYear(week.weekNumber, week.weekYear);
   const weekDates = getDatesInRange(start, end);
 
-  const { data, isLoading, revalidate } = useHarvestWeek(start, end);
+  const { data, isLoading, revalidate: revalidateTimeEntries } = useHarvestWeek(start, end);
   const { defaultTask } = useDefaultTask();
+  const monthlyTotal = getMonthlyTotal(today);
+  const { total: totalHours, revalidate: revalidateTotalHours } = useHarvestTotal(today);
+
+  const revalidate = () => {
+    revalidateTimeEntries();
+    revalidateTotalHours();
+  };
 
   return (
     <List
       isLoading={isLoading}
-      navigationTitle="Search Harvest"
+      navigationTitle={`${totalHours}h / ${monthlyTotal}h`}
       selectedItemId={selectedItem ?? today.toISODate() ?? ""}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown dateTime={today} onWeekChange={setWeekNumber} />}
