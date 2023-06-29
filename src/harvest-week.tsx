@@ -1,19 +1,20 @@
 import { List, Icon, Color, ActionPanel, Action, showToast, Toast } from "@raycast/api";
-import { deleteHarvestTime, useHarvestWeek } from "./api";
+import { deleteHarvestTime, postHarvestTime, useHarvestTotal, useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
-import React, { SetStateAction, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   diffDateAndNow,
+  formatShortDate,
   getDateRangeByWeekNumberAndYear,
   getDatesInRange,
   getNextWeekNumber,
   getPreviousWeekNumbers,
   Week,
 } from "./utils/dates";
-import HarvestHours from "./harvest-hours";
-import { HarvestTimeEntry } from "./Schemas/Harvest";
+import HarvestHours, { Favorite } from "./harvest-hours";
+import { harvestPostTimeEntry, HarvestTimeEntry } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
-import SubmitHours from "./Forms/SubmitHours";
+import { getMonthlyTotal } from "./utils/workdays";
 
 export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
   const today = DateTime.now();
@@ -27,28 +28,27 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
   const { start, end } = getDateRangeByWeekNumberAndYear(week.weekNumber, week.weekYear);
   const weekDates = getDatesInRange(start, end);
 
-  const { data, isLoading } = useHarvestWeek(start, end);
-  const [entries, setEntries] = useState<HarvestTimeEntry[]>(data?.time_entries ?? []);
+  const { data, isLoading, revalidate: revalidateTimeEntries } = useHarvestWeek(start, end);
   const { defaultTask } = useDefaultTask();
+  const monthlyTotal = getMonthlyTotal(today);
+  const { total: totalHours, revalidate: revalidateTotalHours } = useHarvestTotal(today);
 
-  // Update entries when the data is updated by e.g. adding a new time entry.
-  useEffect(() => {
-    if (data) {
-      setEntries(data.time_entries);
-    }
-  }, [data]);
+  const revalidate = () => {
+    revalidateTimeEntries();
+    revalidateTotalHours();
+  };
 
   return (
     <List
       isLoading={isLoading}
-      navigationTitle="Search Harvest"
+      navigationTitle={`${totalHours}h / ${monthlyTotal}h`}
       selectedItemId={selectedItem ?? today.toISODate() ?? ""}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown dateTime={today} onWeekChange={setWeekNumber} />}
     >
       {weekDates.map((date) => {
         const dt = DateTime.fromISO(date);
-        const dateEntries = entries.filter(({ spent_date }) => spent_date === date);
+        const dateEntries = data?.time_entries.filter(({ spent_date }) => spent_date === date) ?? [];
         const sumHours = dateEntries.reduce((a, b) => b.hours + a, 0);
 
         return (
@@ -63,17 +63,9 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
               <ActionPanel>
                 <Action.Push title="Submit Hours" target={<HarvestHours initialDate={new Date(date)} />} />
                 {defaultTask && (
-                  <Action.Push
+                  <Action
                     title="Submit to Default Task"
-                    target={
-                      <SubmitHours
-                        initialDate={new Date(date)}
-                        projectId={defaultTask.project.id}
-                        taskId={defaultTask.task.id}
-                        hours="7.5"
-                        skipToSubmit={true}
-                      />
-                    }
+                    onAction={() => submitToDefault(defaultTask, new Date(date), revalidate)}
                   />
                 )}
                 <ActionPanel.Submenu title="Delete Entry" icon={Icon.Trash} shortcut={{ modifiers: ["cmd"], key: "d" }}>
@@ -81,7 +73,8 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
                     <Action
                       key={dateEntry.id}
                       title={dateEntry.task.name}
-                      onAction={async () => await handleOnDelete(dateEntry, entries, setEntries)}
+                      onAction={async () => await handleOnDelete(dateEntry, revalidate)}
+                      style={Action.Style.Destructive}
                     />
                   ))}
                 </ActionPanel.Submenu>
@@ -151,32 +144,53 @@ function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekCh
 /**
  * Handles the deletion of a time entry.
  * @param dateEntry Date entry to delete
- * @param entries List of time entries
- * @param setEntries Function to set the list of entries
+ * @param revalidate
  */
-async function handleOnDelete(
-  dateEntry: HarvestTimeEntry,
-  entries: HarvestTimeEntry[],
-  setEntries: React.Dispatch<SetStateAction<HarvestTimeEntry[]>>
-) {
+async function handleOnDelete(dateEntry: HarvestTimeEntry, revalidate: () => void) {
   // Show loading toast
-  showToast({ title: "Deleting", style: Toast.Style.Animated });
+  await showToast({ title: "Deleting", style: Toast.Style.Animated });
 
   const ok = await deleteHarvestTime(dateEntry.id);
 
   if (ok) {
     // Remove the deleted entry from the list of entries
-    setEntries(entries.filter((entry) => entry.id !== dateEntry.id));
-    showToast({
+    revalidate();
+    await showToast({
       title: "Success",
       message: `Deleted ${dateEntry.task.name}`,
       style: Toast.Style.Success,
     });
   } else {
-    showToast({
+    await showToast({
       title: "Error",
       message: `Could not find ${dateEntry.task.name}`,
       style: Toast.Style.Failure,
+    });
+  }
+}
+
+async function submitToDefault(task: Favorite, date: Date, revalidate: () => void) {
+  const hours = "7.5";
+  const result = harvestPostTimeEntry.parse({
+    project_id: task.project.id,
+    task_id: task.task.id,
+    spent_date: date,
+    hours,
+  });
+
+  try {
+    await postHarvestTime(result);
+    revalidate();
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Yay!",
+      message: `Submitted 7.5 hours on ${formatShortDate(date)}`,
+    });
+  } catch (error) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "Oh no!",
+      message: `Failed to submit 7.5 hours on ${formatShortDate(date)}`,
     });
   }
 }

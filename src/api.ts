@@ -1,8 +1,15 @@
 import { getPreferenceValues, showToast, Toast } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import { ZodObject, ZodRawShape } from "zod";
-import { HarvestPostTimeEntry, harvestProjectAssignments, harvestTimeEntries, userId } from "./Schemas/Harvest";
+import {
+  HarvestPostTimeEntry,
+  harvestProjectAssignments,
+  harvestTimeEntries,
+  HarvestTimeEntry,
+  userId,
+} from "./Schemas/Harvest";
 import got from "got";
+import { DateTime } from "luxon";
 
 const preferences: { token: string; accountId: string; UA: string } = getPreferenceValues();
 
@@ -45,7 +52,7 @@ export function useHarvest() {
 
 export function useHarvestWeek(from: string, to: string) {
   const userId = useUserId();
-  const { data, isLoading } = useFetch(`${BASE_URL}/time_entries?user_id=${userId}&from=${from}&to=${to}`, {
+  const { data, isLoading, revalidate } = useFetch(`${BASE_URL}/time_entries?user_id=${userId}&from=${from}&to=${to}`, {
     onError: (error) => {
       console.debug(error);
     },
@@ -53,7 +60,33 @@ export function useHarvestWeek(from: string, to: string) {
     headers,
   });
 
-  return { data, isLoading };
+  return { data, isLoading, revalidate };
+}
+
+export function useHarvestTotal(date: DateTime) {
+  const userId = useUserId();
+  const { from, to } = getFromAndToDatesForMonth(date);
+  const { data, revalidate } = useFetch(`${BASE_URL}/time_entries?user_id=${userId}&from=${from}&to=${to}`, {
+    onError: (error) => {
+      console.debug(error);
+    },
+    parseResponse: parseFetchResponse(harvestTimeEntries),
+    headers,
+  });
+
+  return { total: data ? sumTotalHours(data.time_entries) : 0, revalidate };
+}
+
+function getFromAndToDatesForMonth(date: DateTime) {
+  const harvestApiDateFormat = "yyyyMMdd";
+  const from = date.startOf("month").toFormat(harvestApiDateFormat);
+  const to = date.endOf("month").toFormat(harvestApiDateFormat);
+
+  return { from, to };
+}
+
+function sumTotalHours(data: HarvestTimeEntry[]) {
+  return data.reduce((acc, curr) => acc + curr.hours, 0);
 }
 
 function useUserId() {
