@@ -15,6 +15,7 @@ import HarvestHours, { Favorite } from "./harvest-hours";
 import { harvestPostTimeEntry, HarvestTimeEntry } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
 import { getMonthlyTotal } from "./utils/workdays";
+import SubmitHours from "./Forms/SubmitHours";
 
 export default function Command({ selectedDate, selectedWeek }: { selectedDate?: string | undefined, selectedWeek?: Week | undefined }) {
   const today = DateTime.now();
@@ -68,6 +69,22 @@ export default function Command({ selectedDate, selectedWeek }: { selectedDate?:
                     onAction={() => submitToDefault(defaultTask, new Date(date), revalidate)}
                   />
                 )}
+                <ActionPanel.Submenu title="Edit Entry" icon={Icon.Pencil} shortcut={{ modifiers: ["cmd"], key: "e" }}>
+                  {dateEntries.map((dateEntry) => (
+                    <Action.Push
+                      key={dateEntry.id}
+                      title={dateEntry.task.name}
+                      target={<SubmitHours
+                        projectId={dateEntry.project.id}
+                        taskId={dateEntry.task.id}
+                        timeEntryId={dateEntry.id}
+                        hours={dateEntry.hours.toString()}
+                        notes={dateEntry.notes}
+                        initialDate={new Date(dateEntry.spent_date)}
+                      />}
+                    />
+                  ))}
+                </ActionPanel.Submenu>
                 <ActionPanel.Submenu title="Delete Entry" icon={Icon.Trash} shortcut={{ modifiers: ["cmd"], key: "d" }}>
                   {dateEntries.map((dateEntry) => (
                     <Action
