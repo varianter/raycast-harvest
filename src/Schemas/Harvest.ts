@@ -29,6 +29,7 @@ const harvestClientSchema = z.object({
   name: z.string(),
   currency: z.string(),
 });
+export type HarvestClient = z.infer<typeof harvestClientSchema>;
 
 const harvestProjectAssignment = z.object({
   id: z.number(),

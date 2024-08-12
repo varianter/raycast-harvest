@@ -1,9 +1,10 @@
-import { ActionPanel, Action, List, Icon } from "@raycast/api";
+import { Action, ActionPanel, Icon, List } from "@raycast/api";
 import { useHarvest } from "./api";
 import SubmitHours from "./Forms/SubmitHours";
 import { useCachedState } from "@raycast/utils";
-import { HarvestProjectAssignment, TaskAssignment } from "./Schemas/Harvest";
+import { HarvestClient, HarvestProjectAssignment, TaskAssignment } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
+import { useState } from "react";
 
 export type Favorite = HarvestProjectAssignment & TaskAssignment;
 
@@ -12,14 +13,23 @@ export default function Command({ initialDate = new Date() }: { initialDate: Dat
   const [favorites, setFavorites] = useCachedState<Favorite[]>("favorites", []);
   const { defaultTask, isDefault, setAsDefault, removeAsDefault } = useDefaultTask();
 
+  const clients = Object.values(data?.project_assignments.reduce<{ [key: number]: HarvestClient }>((acc, curr) =>
+    (curr.client.id in acc) ? acc : {
+      ...acc,
+      [curr.client.id]: curr.client
+    }, {}) ?? {});
+
+  const [clientId, setClientId] = useState<string | null>(null);
+
   return (
     <List
       isLoading={isLoading}
       navigationTitle="Search Harvest"
       searchBarPlaceholder="Search for assignments"
+      searchBarAccessory={<ClientDropdown isLoading={isLoading} clients={clients} onClientIdChanged={setClientId} />}
       filtering={{ keepSectionOrder: true }}
     >
-      {defaultTask && (
+      {defaultTask && (clientId == null || defaultTask?.client.id.toString() === clientId) && (
         <List.Section title="Default Task">
           <List.Item
             key={defaultTask.id}
@@ -47,7 +57,7 @@ export default function Command({ initialDate = new Date() }: { initialDate: Dat
       )}
 
       <List.Section title="Favorites">
-        {favorites.map((favorite) => (
+        {favorites.filter((f) => clientId == null || f?.client.id.toString() === clientId).map((favorite) => (
           <List.Item
             key={favorite.id}
             title={`${isDefault(favorite) ? "🌟" : "⭐"}\t ${favorite.task.name}`}
@@ -74,7 +84,7 @@ export default function Command({ initialDate = new Date() }: { initialDate: Dat
       </List.Section>
 
       <List.Section title="Assignments">
-        {data?.project_assignments.map((assignment) =>
+        {data?.project_assignments.filter((p) => clientId == null || p?.client.id.toString() === clientId).map((assignment) =>
           assignment.task_assignments.map((task) => (
             <List.Item
               key={task.id}
@@ -142,6 +152,25 @@ const SubmitActions = ({
     </>
   );
 };
+
+const ClientDropdown = ({isLoading, clients, onClientIdChanged}: {isLoading: boolean, clients: HarvestClient[], onClientIdChanged: (clientId: string | null) => void}) => {
+
+  const ALL_CLIENTS_ID = "dummyIdForAllClientsOptionMustNotMatchAnyClientIds"
+
+  return (
+    <List.Dropdown
+      isLoading={isLoading}
+      tooltip={"Select client"}
+      defaultValue={ALL_CLIENTS_ID}
+      onChange={(c) => onClientIdChanged(c === ALL_CLIENTS_ID ? null : c)}
+    >
+      <List.Dropdown.Item key={ALL_CLIENTS_ID} title={"All clients"} value={ALL_CLIENTS_ID} />
+      {clients.map((client) => (
+        <List.Dropdown.Item key={client.id} title={client.name} value={client.id.toString()} keywords={[client.id.toString()]} />
+      ))}
+    </List.Dropdown>
+  )
+}
 
 function isFavorite(favorites: Favorite[], task: TaskAssignment) {
   return favorites.some((f) => f.id === task.id);
