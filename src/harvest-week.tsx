@@ -16,14 +16,14 @@ import { harvestPostTimeEntry, HarvestTimeEntry } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
 import { getMonthlyTotal } from "./utils/workdays";
 
-export default function Command({ selectedItem }: { selectedItem?: string | undefined }) {
+export default function Command({ selectedDate, selectedWeek }: { selectedDate?: string | undefined, selectedWeek?: Week | undefined }) {
   const today = DateTime.now();
   const currentWeek: Week = {
     weekNumber: today.weekNumber,
     weekYear: today.weekYear,
   };
 
-  const [week, setWeekNumber] = useState<Week>(currentWeek);
+  const [week, setWeekNumber] = useState<Week>(selectedWeek ?? currentWeek);
 
   const { start, end } = getDateRangeByWeekNumberAndYear(week.weekNumber, week.weekYear);
   const weekDates = getDatesInRange(start, end);
@@ -42,9 +42,9 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
     <List
       isLoading={isLoading}
       navigationTitle={`${totalHours}h / ${monthlyTotal}h`}
-      selectedItemId={selectedItem ?? today.toISODate() ?? ""}
+      selectedItemId={selectedDate ?? today.toISODate() ?? ""}
       isShowingDetail={true}
-      searchBarAccessory={<WeekDropdown dateTime={today} onWeekChange={setWeekNumber} />}
+      searchBarAccessory={<WeekDropdown currentDateTime={today} selectedWeek={week} onWeekChange={setWeekNumber} />}
     >
       {weekDates.map((date) => {
         const dt = DateTime.fromISO(date);
@@ -115,8 +115,13 @@ export default function Command({ selectedItem }: { selectedItem?: string | unde
   );
 }
 
-function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekChange: (newValue: Week) => void }) {
-  const weeks = [getNextWeekNumber(dateTime), ...getPreviousWeekNumbers(dateTime)];
+function WeekDropdown({ currentDateTime, selectedWeek, onWeekChange }: {
+  currentDateTime: DateTime;
+  selectedWeek?: Week,
+  onWeekChange: (newValue: Week) => void
+}) {
+  const weeks = [getNextWeekNumber(currentDateTime), ...getPreviousWeekNumbers(currentDateTime)];
+  const selectedWeekIndex = selectedWeek ? weeks.findIndex((w) => w.weekYear === selectedWeek.weekYear && w.weekNumber === selectedWeek.weekNumber).toString() : undefined;
 
   return (
     <List.Dropdown
@@ -127,12 +132,13 @@ function WeekDropdown({ dateTime, onWeekChange }: { dateTime: DateTime; onWeekCh
       }}
       // Default to the current week
       defaultValue="1"
+      value={selectedWeekIndex}
     >
       <List.Dropdown.Section title="Weeks">
         {weeks.map((week, index) => (
           <List.Dropdown.Item
             key={week.weekNumber}
-            title={`Week ${week.weekNumber}${week.weekNumber === dateTime.weekNumber ? " (current)" : ""}`}
+            title={`Week ${week.weekNumber}${week.weekNumber === currentDateTime.weekNumber ? " (current)" : ""}`}
             value={index.toString()}
           />
         ))}

@@ -6,6 +6,7 @@ import { postHarvestTime } from "../api";
 import { harvestPostTimeEntry } from "../Schemas/Harvest";
 import HarvestWeek from "../harvest-week";
 import { formatShortDate } from "../utils/dates";
+import { DateTime } from "luxon";
 
 type FormValues = {
   hours: string;
@@ -41,7 +42,9 @@ export default function Command({
           title: "Yay!",
           message: `Submitted ${values.hours} hours on ${formatShortDate(values.spent_date)}`,
         });
-        push(<HarvestWeek selectedItem={result.spent_date} />);
+        const spentDate = DateTime.fromISO(result.spent_date);
+        push(<HarvestWeek selectedDate={result.spent_date}
+                          selectedWeek={{ weekNumber: spentDate.weekNumber, weekYear: spentDate.weekYear }} />);
       } catch (err) {
         showToast({
           style: Toast.Style.Failure,
