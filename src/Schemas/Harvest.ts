@@ -66,6 +66,7 @@ export const harvestTimeEntry = z.object({
   task: task,
   spent_date: z.string(),
   hours: z.number().positive(),
+  notes: z.string().nullable(),
 });
 const stringToNumber = z
   .string()

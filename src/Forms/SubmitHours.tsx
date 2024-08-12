@@ -2,7 +2,7 @@ import { Action, ActionPanel, Form, showToast, Toast, useNavigation } from "@ray
 import { useForm } from "@raycast/utils";
 import { useEffect } from "react";
 import { ZodIssue } from "zod";
-import { postHarvestTime } from "../api";
+import { postHarvestTime, putHarvestTime } from "../api";
 import { harvestPostTimeEntry } from "../Schemas/Harvest";
 import HarvestWeek from "../harvest-week";
 import { formatShortDate } from "../utils/dates";
@@ -17,14 +17,18 @@ type FormValues = {
 export default function Command({
   projectId,
   taskId,
+  timeEntryId,
   hours = "7.5",
   initialDate = new Date(),
+  notes = null,
   skipToSubmit = false,
 }: {
   projectId: number;
   taskId: number;
+  timeEntryId?: number;
   hours?: string;
   initialDate?: Date;
+  notes?: string | null;
   skipToSubmit?: boolean;
 }) {
   const { push } = useNavigation();
@@ -32,11 +36,16 @@ export default function Command({
     initialValues: {
       spent_date: initialDate,
       hours: hours,
+      notes: notes ?? undefined
     },
     async onSubmit(values) {
       try {
         const result = harvestPostTimeEntry.parse({ project_id: projectId, task_id: taskId, ...values });
-        await postHarvestTime(result);
+        if (timeEntryId) {
+          await putHarvestTime(timeEntryId, result);
+        } else {
+          await postHarvestTime(result);
+        }
         showToast({
           style: Toast.Style.Success,
           title: "Yay!",

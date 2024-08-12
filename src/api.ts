@@ -108,7 +108,17 @@ export async function postHarvestTime(obj: HarvestPostTimeEntry) {
     json: obj,
     responseType: "json",
   });
-  // Vallidate API response?
+  // Validate API response?
+  return body;
+}
+
+export async function putHarvestTime(timeEntryId: number, obj: HarvestPostTimeEntry) {
+  const { body } = await got.put(`${BASE_URL}/time_entries/${timeEntryId}`, {
+    headers,
+    json: obj,
+    responseType: "json",
+  });
+  // Validate API response?
   return body;
 }
 
