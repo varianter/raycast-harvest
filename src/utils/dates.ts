@@ -33,6 +33,11 @@ export function getNextWeekNumber(dateTime: DateTime): Week {
   return { weekNumber: nextWeek.weekNumber, weekYear: nextWeek.weekYear };
 }
 
+export function getPreviousWeekNumber(dateTime: DateTime): Week {
+  const previousWeek = dateTime.minus({ weeks: 1 });
+  return { weekNumber: previousWeek.weekNumber, weekYear: previousWeek.weekYear };
+}
+
 export function getDatesInRange(startISOString: string, endISOString: string): string[] {
   const start = DateTime.fromISO(startISOString);
   const end = DateTime.fromISO(endISOString);

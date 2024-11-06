@@ -8,6 +8,7 @@ import {
   getDateRangeByWeekNumberAndYear,
   getDatesInRange,
   getNextWeekNumber,
+  getPreviousWeekNumber,
   getPreviousWeekNumbers,
   Week,
 } from "./utils/dates";
@@ -95,6 +96,18 @@ export default function Command({ selectedDate, selectedWeek }: { selectedDate?:
                     />
                   ))}
                 </ActionPanel.Submenu>
+                <Action
+                  title="Previous Week"
+                  onAction={() => setWeekNumber(getPreviousWeekNumber(dt))}
+                  icon={Icon.ArrowUpCircle}
+                  shortcut={{ modifiers: ["shift"], key: "arrowUp" }}
+                />
+                <Action
+                  title="Next Week"
+                  icon={Icon.ArrowDownCircle}
+                  onAction={() => setWeekNumber(getNextWeekNumber(dt))}
+                  shortcut={{ modifiers: ["shift"], key: "arrowDown" }}
+                />
               </ActionPanel>
             }
             detail={
