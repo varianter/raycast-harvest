@@ -18,7 +18,13 @@ import { useDefaultTask } from "./utils/defaultTask";
 import { getMonthlyTotal } from "./utils/workdays";
 import SubmitHours from "./Forms/SubmitHours";
 
-export default function Command({ selectedDate, selectedWeek }: { selectedDate?: string | undefined, selectedWeek?: Week | undefined }) {
+export default function Command({
+  selectedDate,
+  selectedWeek,
+}: {
+  selectedDate?: string | undefined;
+  selectedWeek?: Week | undefined;
+}) {
   const today = DateTime.now();
   const currentWeek: Week = {
     weekNumber: today.weekNumber,
@@ -75,14 +81,16 @@ export default function Command({ selectedDate, selectedWeek }: { selectedDate?:
                     <Action.Push
                       key={dateEntry.id}
                       title={dateEntry.task.name}
-                      target={<SubmitHours
-                        projectId={dateEntry.project.id}
-                        taskId={dateEntry.task.id}
-                        timeEntryId={dateEntry.id}
-                        hours={dateEntry.hours.toString()}
-                        notes={dateEntry.notes}
-                        initialDate={new Date(dateEntry.spent_date)}
-                      />}
+                      target={
+                        <SubmitHours
+                          projectId={dateEntry.project.id}
+                          taskId={dateEntry.task.id}
+                          timeEntryId={dateEntry.id}
+                          hours={dateEntry.hours.toString()}
+                          notes={dateEntry.notes}
+                          initialDate={new Date(dateEntry.spent_date)}
+                        />
+                      }
                     />
                   ))}
                 </ActionPanel.Submenu>
@@ -145,13 +153,21 @@ export default function Command({ selectedDate, selectedWeek }: { selectedDate?:
   );
 }
 
-function WeekDropdown({ currentDateTime, selectedWeek, onWeekChange }: {
+function WeekDropdown({
+  currentDateTime,
+  selectedWeek,
+  onWeekChange,
+}: {
   currentDateTime: DateTime;
-  selectedWeek?: Week,
-  onWeekChange: (newValue: Week) => void
+  selectedWeek?: Week;
+  onWeekChange: (newValue: Week) => void;
 }) {
   const weeks = [getNextWeekNumber(currentDateTime), ...getPreviousWeekNumbers(currentDateTime)];
-  const selectedWeekIndex = selectedWeek ? weeks.findIndex((w) => w.weekYear === selectedWeek.weekYear && w.weekNumber === selectedWeek.weekNumber).toString() : undefined;
+  const selectedWeekIndex = selectedWeek
+    ? weeks
+        .findIndex((w) => w.weekYear === selectedWeek.weekYear && w.weekNumber === selectedWeek.weekNumber)
+        .toString()
+    : undefined;
 
   return (
     <List.Dropdown

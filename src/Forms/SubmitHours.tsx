@@ -36,7 +36,7 @@ export default function Command({
     initialValues: {
       spent_date: initialDate,
       hours: hours,
-      notes: notes ?? undefined
+      notes: notes ?? undefined,
     },
     async onSubmit(values) {
       try {
@@ -52,8 +52,12 @@ export default function Command({
           message: `Submitted ${values.hours} hours on ${formatShortDate(values.spent_date)}`,
         });
         const spentDate = DateTime.fromISO(result.spent_date);
-        push(<HarvestWeek selectedDate={result.spent_date}
-                          selectedWeek={{ weekNumber: spentDate.weekNumber, weekYear: spentDate.weekYear }} />);
+        push(
+          <HarvestWeek
+            selectedDate={result.spent_date}
+            selectedWeek={{ weekNumber: spentDate.weekNumber, weekYear: spentDate.weekYear }}
+          />
+        );
       } catch (err) {
         showToast({
           style: Toast.Style.Failure,
