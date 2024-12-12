@@ -62,7 +62,7 @@ export default function Command({
         showToast({
           style: Toast.Style.Failure,
           title: "Oh snap!",
-          message: `Something went wrong sending the data to Harvet`,
+          message: `Something went wrong sending the data to Harvest`,
         });
       }
     },
