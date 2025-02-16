@@ -9,6 +9,15 @@ export const getMonthlyTotal = (payDate: DateTime) => {
   return workDays.length * dailyWorkHours;
 };
 
+export const getTotalWorkHoursThroughDate = (date: DateTime) => {
+  return getWorkDaysInMonthThroughDate(date).length * dailyWorkHours;
+};
+
+export const getWorkDaysInMonthThroughDate = (date: DateTime) => {
+  const workDays = getWorkDaysInMonth(date);
+  return workDays.filter((d) => d.startOf("day") <= date.startOf("day"));
+};
+
 const getWorkDaysInMonth = (payDate: DateTime) => {
   return getWorkdaysInMonth(payDate.year, payDate.month);
 };

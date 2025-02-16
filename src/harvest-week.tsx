@@ -1,4 +1,4 @@
-import { List, Icon, Color, ActionPanel, Action, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Color, getPreferenceValues, Icon, List, showToast, Toast } from "@raycast/api";
 import { deleteHarvestTime, postHarvestTime, useHarvestTotal, useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
@@ -15,7 +15,7 @@ import {
 import HarvestHours, { Favorite } from "./harvest-hours";
 import { harvestPostTimeEntry, HarvestTimeEntry } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
-import { getMonthlyTotal } from "./utils/workdays";
+import { getMonthlyTotal, getTotalWorkHoursThroughDate } from "./utils/workdays";
 import SubmitHours from "./Forms/SubmitHours";
 
 export default function Command({
@@ -38,8 +38,8 @@ export default function Command({
 
   const { data, isLoading, revalidate: revalidateTimeEntries } = useHarvestWeek(start, end);
   const { defaultTask } = useDefaultTask();
-  const monthlyTotal = getMonthlyTotal(today);
   const { total: totalHours, revalidate: revalidateTotalHours } = useHarvestTotal(today);
+  const navigationTitle = getNavigationTitle(today, totalHours);
 
   const revalidate = () => {
     revalidateTimeEntries();
@@ -49,7 +49,7 @@ export default function Command({
   return (
     <List
       isLoading={isLoading}
-      navigationTitle={`${totalHours}h / ${monthlyTotal}h`}
+      navigationTitle={navigationTitle}
       selectedItemId={selectedDate ?? today.toISODate() ?? ""}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown currentDateTime={today} selectedWeek={week} onWeekChange={setWeekNumber} />}
@@ -245,4 +245,14 @@ async function submitToDefault(task: Favorite, date: Date, revalidate: () => voi
       message: `Failed to submit 7.5 hours on ${formatShortDate(date)}`,
     });
   }
+}
+
+function getNavigationTitle(date: DateTime, registeredHours: number) {
+  const baseTitle = `${registeredHours}h / ${getMonthlyTotal(date)}h`;
+  if (!getPreferenceValues<Preferences.HarvestWeek>().displayExpectedHoursDiff) {
+    return baseTitle;
+  }
+  const diff = registeredHours - getTotalWorkHoursThroughDate(date);
+  const sign = diff >= 0 ? "+" : "";
+  return `${baseTitle} (${sign}${diff}h)`;
 }

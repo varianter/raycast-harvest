@@ -21,7 +21,18 @@
       "name": "harvest-week",
       "title": "This Week",
       "description": "Get a glance of this week's submitted hours",
-      "mode": "view"
+      "mode": "view",
+      "preferences": [
+        {
+          "title": "Display Options",
+          "name": "displayExpectedHoursDiff",
+          "label": "Expected work hours difference",
+          "description": "Expected work hours is based on the number of work days from month start up to and including the current date. The difference is displayed next to the registered and total work hours in the navigation title.",
+          "type": "checkbox",
+          "default": true,
+          "required": false
+        }
+      ]
     }
   ],
   "preferences": [
