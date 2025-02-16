@@ -1,4 +1,4 @@
-import { List, Icon, Color, ActionPanel, Action, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Color, Icon, List, showToast, Toast } from "@raycast/api";
 import { deleteHarvestTime, postHarvestTime, useHarvestTotal, useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
@@ -15,7 +15,7 @@ import {
 import HarvestHours, { Favorite } from "./harvest-hours";
 import { harvestPostTimeEntry, HarvestTimeEntry } from "./Schemas/Harvest";
 import { useDefaultTask } from "./utils/defaultTask";
-import { getMonthlyTotal } from "./utils/workdays";
+import { getMonthlyTotal, getTotalWorkHoursThroughDate } from "./utils/workdays";
 import SubmitHours from "./Forms/SubmitHours";
 
 export default function Command({
@@ -39,7 +39,9 @@ export default function Command({
   const { data, isLoading, revalidate: revalidateTimeEntries } = useHarvestWeek(start, end);
   const { defaultTask } = useDefaultTask();
   const monthlyTotal = getMonthlyTotal(today);
+  const workHoursThroughCurrentDate = getTotalWorkHoursThroughDate(today);
   const { total: totalHours, revalidate: revalidateTotalHours } = useHarvestTotal(today);
+  const expectedHoursDiff = formatExpectedHoursDiff(totalHours - workHoursThroughCurrentDate);
 
   const revalidate = () => {
     revalidateTimeEntries();
@@ -49,7 +51,7 @@ export default function Command({
   return (
     <List
       isLoading={isLoading}
-      navigationTitle={`${totalHours}h / ${monthlyTotal}h`}
+      navigationTitle={`${totalHours}h / ${monthlyTotal}h${expectedHoursDiff}`}
       selectedItemId={selectedDate ?? today.toISODate() ?? ""}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown currentDateTime={today} selectedWeek={week} onWeekChange={setWeekNumber} />}
@@ -245,4 +247,9 @@ async function submitToDefault(task: Favorite, date: Date, revalidate: () => voi
       message: `Failed to submit 7.5 hours on ${formatShortDate(date)}`,
     });
   }
+}
+
+function formatExpectedHoursDiff(diff: number) {
+  const sign = diff >= 0 ? "+" : "";
+  return ` (${sign}${diff}h)`;
 }
