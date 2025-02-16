@@ -23,7 +23,10 @@ declare namespace Preferences {
   /** Preferences accessible in the `harvest-hours` command */
   export type HarvestHours = ExtensionPreferences & {}
   /** Preferences accessible in the `harvest-week` command */
-  export type HarvestWeek = ExtensionPreferences & {}
+  export type HarvestWeek = ExtensionPreferences & {
+  /** Display Options - Expected work hours is based on the number of work days from month start up to and including the current date. The difference is displayed next to the registered and total work hours in the navigation title. */
+  "displayExpectedHoursDiff"?: boolean
+}
 }
 
 declare namespace Arguments {

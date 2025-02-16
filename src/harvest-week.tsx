@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Color, Icon, List, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Color, getPreferenceValues, Icon, List, showToast, Toast } from "@raycast/api";
 import { deleteHarvestTime, postHarvestTime, useHarvestTotal, useHarvestWeek } from "./api";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
@@ -38,10 +38,8 @@ export default function Command({
 
   const { data, isLoading, revalidate: revalidateTimeEntries } = useHarvestWeek(start, end);
   const { defaultTask } = useDefaultTask();
-  const monthlyTotal = getMonthlyTotal(today);
-  const workHoursThroughCurrentDate = getTotalWorkHoursThroughDate(today);
   const { total: totalHours, revalidate: revalidateTotalHours } = useHarvestTotal(today);
-  const expectedHoursDiff = formatExpectedHoursDiff(totalHours - workHoursThroughCurrentDate);
+  const navigationTitle = getNavigationTitle(today, totalHours);
 
   const revalidate = () => {
     revalidateTimeEntries();
@@ -51,7 +49,7 @@ export default function Command({
   return (
     <List
       isLoading={isLoading}
-      navigationTitle={`${totalHours}h / ${monthlyTotal}h${expectedHoursDiff}`}
+      navigationTitle={navigationTitle}
       selectedItemId={selectedDate ?? today.toISODate() ?? ""}
       isShowingDetail={true}
       searchBarAccessory={<WeekDropdown currentDateTime={today} selectedWeek={week} onWeekChange={setWeekNumber} />}
@@ -249,7 +247,12 @@ async function submitToDefault(task: Favorite, date: Date, revalidate: () => voi
   }
 }
 
-function formatExpectedHoursDiff(diff: number) {
+function getNavigationTitle(date: DateTime, registeredHours: number) {
+  const baseTitle = `${registeredHours}h / ${getMonthlyTotal(date)}h`;
+  if (!getPreferenceValues<Preferences.HarvestWeek>().displayExpectedHoursDiff) {
+    return baseTitle;
+  }
+  const diff = registeredHours - getTotalWorkHoursThroughDate(date);
   const sign = diff >= 0 ? "+" : "";
-  return ` (${sign}${diff}h)`;
+  return `${baseTitle} (${sign}${diff}h)`;
 }
