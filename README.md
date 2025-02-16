@@ -1,3 +1,5 @@
+<img width="100" alt="image" src="assets/harvest.png" />
+
 # Raycast extension for Harvest
 
 You'll need two things to run this extension: 
