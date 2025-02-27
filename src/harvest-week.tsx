@@ -107,14 +107,14 @@ export default function Command({
                 <Action
                   title="Previous Week"
                   onAction={() => setWeekNumber(getPreviousWeekNumber(dt))}
-                  icon={Icon.ArrowUpCircle}
-                  shortcut={{ modifiers: ["shift"], key: "arrowUp" }}
+                  icon={Icon.ArrowLeftCircle}
+                  shortcut={{ modifiers: ["shift"], key: "arrowLeft" }}
                 />
                 <Action
                   title="Next Week"
-                  icon={Icon.ArrowDownCircle}
+                  icon={Icon.ArrowRightCircle}
                   onAction={() => setWeekNumber(getNextWeekNumber(dt))}
-                  shortcut={{ modifiers: ["shift"], key: "arrowDown" }}
+                  shortcut={{ modifiers: ["shift"], key: "arrowRight" }}
                 />
               </ActionPanel>
             }
