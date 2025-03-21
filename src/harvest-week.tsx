@@ -73,7 +73,7 @@ export default function Command({
                 {defaultTask && (
                   <Action
                     title="Submit to Default Task"
-                    onAction={() => submitToDefault(defaultTask, new Date(date), revalidate)}
+                    onAction={() => submitToDefault(defaultTask, new Date(date), sumHours, revalidate)}
                   />
                 )}
                 <ActionPanel.Submenu title="Edit Entry" icon={Icon.Pencil} shortcut={{ modifiers: ["cmd"], key: "e" }}>
@@ -221,8 +221,18 @@ async function handleOnDelete(dateEntry: HarvestTimeEntry, revalidate: () => voi
   }
 }
 
-async function submitToDefault(task: Favorite, date: Date, revalidate: () => void) {
-  const hours = "7.5";
+async function submitToDefault(task: Favorite, date: Date, registeredHours: number, revalidate: () => void) {
+  if (registeredHours >= 7.5) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "🚫",
+      message: `Already 7.5 or more hours registered on ${formatShortDate(date)}`,
+    });
+
+    return;
+  }
+
+  const hours = (7.5 - registeredHours).toString();
   const result = harvestPostTimeEntry.parse({
     project_id: task.project.id,
     task_id: task.task.id,
@@ -236,13 +246,13 @@ async function submitToDefault(task: Favorite, date: Date, revalidate: () => voi
     await showToast({
       style: Toast.Style.Success,
       title: "Yay!",
-      message: `Submitted 7.5 hours on ${formatShortDate(date)}`,
+      message: `Submitted ${hours} hours on ${formatShortDate(date)}`,
     });
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
       title: "Oh no!",
-      message: `Failed to submit 7.5 hours on ${formatShortDate(date)}`,
+      message: `Failed to submit ${hours} hours on ${formatShortDate(date)}`,
     });
   }
 }
