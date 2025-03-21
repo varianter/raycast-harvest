@@ -13,7 +13,7 @@ type ExtensionPreferences = {
   /** Harvest Account Id - You'll find this when you create a new Personal Access Token */
   "accountId": string,
   /** User-agent - Harvest API wants this, so yes, give em a custom User-Agent */
-  "UA"?: string
+  "UA": string
 }
 
 /** Preferences accessible in all the extension's commands */
@@ -25,7 +25,7 @@ declare namespace Preferences {
   /** Preferences accessible in the `harvest-week` command */
   export type HarvestWeek = ExtensionPreferences & {
   /** Display Options - Expected work hours is based on the number of work days from month start up to and including the current date. The difference is displayed next to the registered and total work hours in the navigation title. */
-  "displayExpectedHoursDiff"?: boolean
+  "displayExpectedHoursDiff": boolean
 }
 }
 
@@ -35,3 +35,4 @@ declare namespace Arguments {
   /** Arguments passed to the `harvest-week` command */
   export type HarvestWeek = {}
 }
+
