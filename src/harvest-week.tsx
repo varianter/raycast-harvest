@@ -222,22 +222,30 @@ async function handleOnDelete(dateEntry: HarvestTimeEntry, revalidate: () => voi
 }
 
 async function submitToDefault(task: Favorite, date: Date, registeredHours: number, revalidate: () => void) {
-  if (registeredHours >= 7.5) {
-    await showToast({
-      style: Toast.Style.Failure,
-      title: "🚫",
-      message: `Already 7.5 or more hours registered on ${formatShortDate(date)}`,
-    });
+  const { submitDefaultFillHours } = getPreferenceValues<Preferences.HarvestWeek>();
+  const formattedDate = formatShortDate(date);
 
-    return;
+  let hours = 7.5;
+
+  if (submitDefaultFillHours) {
+    hours = 7.5 - registeredHours;
+
+    if (registeredHours >= 7.5) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "🚫",
+        message: `Already 7.5 or more hours registered on ${formattedDate}`,
+      });
+
+      return;
+    }
   }
 
-  const hours = (7.5 - registeredHours).toString();
   const result = harvestPostTimeEntry.parse({
     project_id: task.project.id,
     task_id: task.task.id,
     spent_date: date,
-    hours,
+    hours: hours.toString(),
   });
 
   try {
@@ -246,13 +254,13 @@ async function submitToDefault(task: Favorite, date: Date, registeredHours: numb
     await showToast({
       style: Toast.Style.Success,
       title: "Yay!",
-      message: `Submitted ${hours} hours on ${formatShortDate(date)}`,
+      message: `Submitted ${hours} hours on ${formattedDate}`,
     });
   } catch (error) {
     await showToast({
       style: Toast.Style.Failure,
       title: "Oh no!",
-      message: `Failed to submit ${hours} hours on ${formatShortDate(date)}`,
+      message: `Failed to submit ${hours} hours on ${formattedDate}`,
     });
   }
 }

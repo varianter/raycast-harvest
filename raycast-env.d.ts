@@ -25,7 +25,9 @@ declare namespace Preferences {
   /** Preferences accessible in the `harvest-week` command */
   export type HarvestWeek = ExtensionPreferences & {
   /** Display Options - Expected work hours is based on the number of work days from month start up to and including the current date. The difference is displayed next to the registered and total work hours in the navigation title. */
-  "displayExpectedHoursDiff": boolean
+  "displayExpectedHoursDiff": boolean,
+  /** Submit Default Behavior - Submit default will fill the hours up until 7.5 hours for the selected date that is not already filled. */
+  "submitDefaultFillHours": boolean
 }
 }
 

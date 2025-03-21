@@ -31,6 +31,15 @@
           "type": "checkbox",
           "default": true,
           "required": false
+        },
+        {
+          "title": "Submit Default Behavior",
+          "name": "submitDefaultFillHours",
+          "label": "Submit default fills the hours up until 7.5 hours",
+          "description": "Submit default will fill the hours up until 7.5 hours for the selected date that is not already filled.",
+          "type": "checkbox",
+          "default": true,
+          "required": false
         }
       ]
     }
